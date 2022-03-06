@@ -2,10 +2,12 @@ from typing import Tuple, Optional
 
 import gym
 import numpy as np
+import matplotlib
+
 from gym import Env
 from numpy import ndarray
-
 from agent import QLearnerAgent
+from matplotlib import pyplot as plt
 
 
 def run_episode(env: Env, agent: QLearnerAgent, training: bool, gamma) -> float:
@@ -77,10 +79,14 @@ if __name__ == '__main__':
         env = gym.make('FrozenLake-v1')
     agent, returns, evaluation_returns = train(env, 0.99, 30000, 1000, 32, 0.01, 1.0, 0.05, 0.99)
     print(agent.q_table)
+
+    plt.plot([1, 2, 3, 4])
+    plt.ylabel('some numbers')
+    plt.show()
     # print(env)
     # print(env.reset())
     # env.render()
     # input()
 
+
     # TODO: complete.
-    #train(env, 0.99, 30000, 1000, 32, 0.01, 1.0, 0.05, 0.99)

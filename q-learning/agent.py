@@ -98,13 +98,11 @@ class QLearnerAgent:
             else:
                 self.epsilon = self.epsilon * self.epsilon_decay
 
-        q_value = self.q_table[obs, act] #act is a double?
+        q_value = self.q_table[obs, act]
         next_max_q_value = np.max(self.q_table[next_obs])
 
         new_state_value = q_value + self.learning_rate * (rew + self.gamma * int(not done) * next_max_q_value - q_value) #Q(s,a) <- Q(s,a) + \alpha * [r + \gamma * max_a[Q(s',a')] - Q(s,a)]
-        self.q_table[obs, act] = new_state_value #act is a double?
-
-        #print(rew) #reward always zero, why?
+        self.q_table[obs, act] = new_state_value
 
 def _main():
     tab = create_q_table(10, 10)
