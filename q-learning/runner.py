@@ -87,10 +87,12 @@ if __name__ == '__main__':
         env = gym.make('FrozenLake-v0')
     except gym.error.Error:
         env = gym.make('FrozenLake-v1')
-    agent, returns, evaluation_returns, evaluation_returns_graph, graph_period = train(env, 0.99, 30000, 1000, 32, 100, 0.01, 1.0, 0.05, 0.99)
-    print(agent.q_table)
 
-    plt.plot(evaluation_returns_graph)
+    for x in range(10):
+        agent, returns, evaluation_returns, evaluation_returns_graph, graph_period = train(env, 0.99, 30000, 1000, 32, 100, 0.01, 1.0, 0.05, 0.99)
+        print(agent.q_table)
+        plt.plot(evaluation_returns_graph)
+
     plt.ylabel(f"evaluation")
     plt.xlabel(f"episodes x{graph_period}")
     plt.show()
