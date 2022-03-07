@@ -45,7 +45,8 @@ class DQNAgent:
         :param observation: The observation.
         :return: The action.
         """
-        return NotImplementedError
+        action = torch.argmax(self.nn(observation))
+        return action
 
     def act(self, observation, training: bool = True) -> int:
         """
@@ -77,3 +78,9 @@ class DQNAgent:
         raise NotImplementedError
 
 
+def _main():
+    agent_test = DQNAgent(10, 10, 0.01, 0.99, 1.0, 0.05, 0.99)
+    print(agent_test.greedy_action(10))
+
+if(__name__ == "__main__"):
+    _main()

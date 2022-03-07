@@ -112,6 +112,10 @@ def _main():
     print(test)
     agent_test = QLearnerAgent(10, 10, 0.01, 0.99, 1.0, 0.05, 0.99)
     print(agent_test.epsilon)
+    A1 = [1, 2, 3, 4]
+    A2 = [4, 3, 2, 1]
+    A = [A1, A2]
+    print(np.mean(A, axis=0))
 
 if(__name__ == "__main__"):
     _main()
