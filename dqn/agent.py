@@ -81,10 +81,10 @@ class DQNAgent:
         :param next_obs: The next observation.
         """
         # Compute the loss !
-        q_value = torch.argmax(self.nn(obs)) #self.q_table[obs, act]
+        q_value = self.nn(obs)[act] #self.q_table[obs, act]
         next_max_q_value = torch.argmax(self.nn(next_obs)) #np.max(self.q_table[next_obs])
 
-        loss = int(not done) * (rew + self.gamma * next_max_q_value - q_value)^2
+        loss = int(not done) * pow((rew + self.gamma * next_max_q_value - q_value), 2)
 
         self.optimizer.zero_grad()
         loss.backward()
