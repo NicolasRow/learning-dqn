@@ -80,11 +80,22 @@ class DQNAgent:
         :param done: Done flag.
         :param next_obs: The next observation.
         """
+
+        if done:
+            # Decaying epsilon
+            if ((self.epsilon * self.epsilon_decay) < self.epsilon_min):
+                self.epsilon = self.epsilon_min
+            else:
+                self.epsilon = self.epsilon * self.epsilon_decay
+
         # Compute the loss !
         q_value = self.nn(obs)[act] #self.q_table[obs, act]
-        next_max_q_value = torch.argmax(self.nn(next_obs)) #np.max(self.q_table[next_obs])
+        print(q_value)
+        next_max_q_value = torch.max(self.nn(next_obs)) #np.max(self.q_table[next_obs])
+        print(next_max_q_value)
 
-        loss = int(not done) * pow((rew + self.gamma * next_max_q_value - q_value), 2)
+        loss = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2)
+        print(f"loss =  + {loss}")
 
         self.optimizer.zero_grad()
         loss.backward()
