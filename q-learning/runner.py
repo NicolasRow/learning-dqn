@@ -77,7 +77,6 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
             for eval_episode in range(num_evaluation_episodes):
                 cum_rewards_eval[eval_episode] = run_episode(env, agent, False, gamma)
             evaluation_returns_graph[evaluation_step] = np.mean(cum_rewards_eval)
-            #print(f"Averaged evaluation return (graph period) {evaluation_returns_graph[evaluation_step]:0.3}")
 
     return agent, returns, evaluation_returns, evaluation_returns_graph, graph_period
 
@@ -88,19 +87,19 @@ if __name__ == '__main__':
     except gym.error.Error:
         env = gym.make('FrozenLake-v1')
 
-    num_samples = 3
-    avg_evaluation = np.zeros(30000 // 100)
+    num_samples = 5
+    avg_evaluation = np.zeros(num_samples)(30000 // 100)
     flag = True
 
     for x in range(num_samples):
         agent, returns, evaluation_returns, evaluation_returns_graph, graph_period = train(env, 0.99, 30000, 1000, 32, 100, 0.01, 1.0, 0.05, 0.99)
         print(agent.q_table)
-        plt.plot(evaluation_returns_graph)
+        # plt.plot(evaluation_returns_graph)
         if flag:
             avg_evaluation = evaluation_returns_graph
             flag = False
         else:
-            avg_evaluation = np.mean([avg_evaluation, evaluation_returns_graph], axis=0)
+            # avg_evaluation = np.mean([avg_evaluation, evaluation_returns_graph], axis=0)
 
     plt.plot(avg_evaluation, color='r')
     plt.ylabel(f"evaluation")
