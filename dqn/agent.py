@@ -94,17 +94,16 @@ class DQNAgent:
         next_max_q_value = torch.max(self.nn(next_obs)) #np.max(self.q_table[next_obs])
         print(next_max_q_value)
 
-        loss = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2)
-        print(f"loss =  + {loss}")
+        #print(self.nn(obs))
+        #print(self.nn(next_obs))
+        #print(next_obs)
+        loss1 = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2)
+        #loss2 = np.square(rew + self.gamma * int(not done) * (np.subtract(torch.Tensor.detach(self.nn(next_obs)), torch.Tensor.detach(self.nn(next_obs))))).mean()
+
+        print(f"loss1 = {loss1}")
+        #print(f"loss2 = {loss2}")
 
         self.optimizer.zero_grad()
-        loss.backward()
+        loss1.backward()
         self.optimizer.step()
 
-
-def _main():
-    agent_test = DQNAgent(10, 10, 0.01, 0.99, 1.0, 0.05, 0.99)
-    print(agent_test.greedy_action(10))
-
-if(__name__ == "__main__"):
-    _main()
