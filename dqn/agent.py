@@ -92,18 +92,21 @@ class DQNAgent:
         q_value = self.nn(obs)[act] #self.q_table[obs, act]
         print(q_value)
         next_max_q_value = torch.max(self.nn(next_obs)) #np.max(self.q_table[next_obs])
-        print(next_max_q_value)
+        next_min_q_value = torch.min(self.nn(next_obs))
+        #print(next_max_q_value)
 
         #print(self.nn(obs))
         #print(self.nn(next_obs))
         #print(next_obs)
         loss1 = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2)
-        #loss2 = np.square(rew + self.gamma * int(not done) * (np.subtract(torch.Tensor.detach(self.nn(next_obs)), torch.Tensor.detach(self.nn(next_obs))))).mean()
+        loss = torch.mean(loss1)
+        #loss2 = pow((rew + self.gamma * int(not done) * next_min_q_value - q_value), 2)
+        #loss2 = np.square(rew + self.gamma * int(not done) * (np.mean(torch.Tensor.detach(self.nn(next_obs)), axis=0) - np.mean(torch.Tensor.detach(self.nn(next_obs)), axis=0)))
 
-        print(f"loss1 = {loss1}")
+        print(f"loss = {loss}")
         #print(f"loss2 = {loss2}")
 
         self.optimizer.zero_grad()
-        loss1.backward()
+        loss.backward()
         self.optimizer.step()
 
