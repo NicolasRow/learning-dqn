@@ -34,7 +34,7 @@ def run_episode(env: Env, agent: DQNAgent, training: bool, gamma) -> float:
 
 
 def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_evaluation_episodes: int,
-          alpha: float, epsilon_max: Optional[float] = None, epsilon_min: Optional[float] = None,
+          graph_period: int, alpha: float, epsilon_max: Optional[float] = None, epsilon_min: Optional[float] = None,
           epsilon_decay: Optional[float] = None) -> Tuple[DQNAgent, ndarray, ndarray]:
     """
     Training loop.
@@ -56,6 +56,7 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
                           epsilon_min, epsilon_decay)
     evaluation_returns = np.zeros(num_episodes // evaluate_every)
     returns = np.zeros(num_episodes)
+
     for episode in range(num_episodes):
         returns[episode] = run_episode(env, agent, True, gamma)
 
@@ -67,11 +68,25 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
             evaluation_returns[evaluation_step] = np.mean(cum_rewards_eval)
             print(f"Episode {(episode + 1): >{digits}}/{num_episodes:0{digits}}:\t"
                   f"Averaged evaluation return {evaluation_returns[evaluation_step]:0.3}")
+
     return agent, returns, evaluation_returns
 
 
 if __name__ == '__main__':
     env = gym.make('CartPole-v1')
     # test
-    train(env, 0.99, 1000, 50, 32, 0.01, 1.0, 0.05, 0.99)
+
+    num_samples = 10
+    avg_evaluation = np.zeros((num_samples, (1000 // 50)))
+
+    for x in range(num_samples):
+        agent, returns, evaluation_returns = train(env, 0.99, 1000, 50, 32, 100, 0.01, 1.0, 0.05, 0.99)
+        #plt.plot(evaluation_returns)
+        avg_evaluation[x] = evaluation_returns
+
+    avg_evaluation_mean = np.mean(avg_evaluation, axis=0)
+    plt.plot(avg_evaluation_mean, color='r')
+    plt.ylabel(f"evaluation")
+    #plt.xlabel(f"episodes x{graph_period}")
+    plt.show()
 

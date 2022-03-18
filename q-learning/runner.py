@@ -94,12 +94,12 @@ if __name__ == '__main__':
     for x in range(num_samples):
         agent, returns, evaluation_returns, evaluation_returns_graph, graph_period = train(env, 0.99, 30000, 1000, 32, 100, 0.01, 1.0, 0.05, 0.99)
         print(agent.q_table)
-        # plt.plot(evaluation_returns_graph)
+        plt.plot(evaluation_returns_graph)
         if flag:
             avg_evaluation = evaluation_returns_graph
             flag = False
         else:
-            # avg_evaluation = np.mean([avg_evaluation, evaluation_returns_graph], axis=0)
+            avg_evaluation = np.mean([avg_evaluation, evaluation_returns_graph], axis=0)
 
     plt.plot(avg_evaluation, color='r')
     plt.ylabel(f"evaluation")
