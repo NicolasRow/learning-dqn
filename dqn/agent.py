@@ -90,17 +90,9 @@ class DQNAgent:
 
         # Compute the loss !
         q_value = self.nn(obs)[act] #self.q_table[obs, act]
-        #print(q_value)
         next_max_q_value = torch.max(self.nn(next_obs)) #np.max(self.q_table[next_obs])
-        #print(next_max_q_value)
 
-        loss1 = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2)
-        loss = torch.mean(loss1)
-        #loss2 = pow((rew + self.gamma * int(not done) * next_min_q_value - q_value), 2)
-        #loss2 = np.square(rew + self.gamma * int(not done) * (np.mean(torch.Tensor.detach(self.nn(next_obs)), axis=0) - np.mean(torch.Tensor.detach(self.nn(next_obs)), axis=0)))
-
-        #print(f"loss = {loss}")
-        #print(f"loss2 = {loss2}")
+        loss = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2).mean()
 
         self.optimizer.zero_grad()
         loss.backward()
