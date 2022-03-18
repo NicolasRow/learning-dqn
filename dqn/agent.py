@@ -46,7 +46,7 @@ class DQNAgent:
         :param observation: The observation.
         :return: The action.
         """
-        action = torch.argmax(self.nn(observation))
+        action = torch.argmax(self.nn(observation)).item()
         return action
 
     def act(self, observation, training: bool = True) -> int:
@@ -90,20 +90,16 @@ class DQNAgent:
 
         # Compute the loss !
         q_value = self.nn(obs)[act] #self.q_table[obs, act]
-        print(q_value)
+        #print(q_value)
         next_max_q_value = torch.max(self.nn(next_obs)) #np.max(self.q_table[next_obs])
-        next_min_q_value = torch.min(self.nn(next_obs))
         #print(next_max_q_value)
 
-        #print(self.nn(obs))
-        #print(self.nn(next_obs))
-        #print(next_obs)
         loss1 = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2)
         loss = torch.mean(loss1)
         #loss2 = pow((rew + self.gamma * int(not done) * next_min_q_value - q_value), 2)
         #loss2 = np.square(rew + self.gamma * int(not done) * (np.mean(torch.Tensor.detach(self.nn(next_obs)), axis=0) - np.mean(torch.Tensor.detach(self.nn(next_obs)), axis=0)))
 
-        print(f"loss = {loss}")
+        #print(f"loss = {loss}")
         #print(f"loss2 = {loss2}")
 
         self.optimizer.zero_grad()
