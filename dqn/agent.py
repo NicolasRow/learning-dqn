@@ -3,6 +3,7 @@ from typing import Optional
 from numpy import ndarray
 import numpy as np
 from model import QModel
+from replay_buffer import ReplayBuffer
 import torch
 import random as rd
 
@@ -12,13 +13,14 @@ class DQNAgent:
     """
 
     def __init__(self,
-                 obs_dim: int,
+                 obs_shape: tuple,
                  num_actions: int,
                  learning_rate: float,
                  gamma: float,
                  epsilon_max: Optional[float] = None,
                  epsilon_min: Optional[float] = None,
-                 epsilon_decay: Optional[float] = None):
+                 epsilon_decay: Optional[float] = None,
+                 capacity: Optional[int] = 1000):
         """
         :param num_states: Number of states.
         :param num_actions: Number of actions.
@@ -28,11 +30,15 @@ class DQNAgent:
         :param epsilon_min: The minimum epsilon of epsilon-greedy.
         :param epsilon_decay: The decay factor of epsilon-greedy.
         """
-        self.obs_dim = obs_dim
+        self.obs_shape = obs_shape
+        self.capacity = capacity
+        self.obs_dim = int(np.prod(self.obs_shape))
         self.num_actions = num_actions
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.nn = QModel(obs_dim, num_actions)
+        self.nn = QModel(self.obs_dim, num_actions)
+        #self.nn_target = self.nn_pred #?
+        self.rb = ReplayBuffer(capacity, self.obs_shape)
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
         self.epsilon_max = epsilon_max
@@ -81,6 +87,8 @@ class DQNAgent:
         :param next_obs: The next observation.
         """
 
+        self.rb.add_transition(obs, act, rew, done, next_obs)
+
         if done:
             # Decaying epsilon
             if ((self.epsilon * self.epsilon_decay) < self.epsilon_min):
@@ -88,12 +96,20 @@ class DQNAgent:
             else:
                 self.epsilon = self.epsilon * self.epsilon_decay
 
-        # Compute the loss !
-        q_value = self.nn(obs)[act] #self.q_table[obs, act]
-        with torch.no_grad():
-            next_max_q_value = torch.max(self.nn(next_obs)) #np.max(self.q_table[next_obs])
+        states, actions, rewards, dones, next_states = self.rb.sample(16)
+        # if len(self.rb) < 16:
+        #     observations = self.rb.sample(16)
+        # else:
+        #     observations = self.rb.sample(16)
 
-        loss = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2).mean()
+        # Compute the loss !
+        q_values = self.nn(states)[actions] #self.q_table[obs, act]
+        print(q_values)
+        with torch.no_grad():
+            next_max_q_values = torch.max(self.nn(next_states)) #np.max(self.q_table[next_obs])
+
+        # loss = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2).mean()
+        loss = pow((rewards + self.gamma + (1-dones) * next_max_q_values - q_values), 2).mean()
 
         self.optimizer.zero_grad()
         loss.backward()

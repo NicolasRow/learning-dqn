@@ -54,10 +54,12 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
             each evaluation.
     """
     digits = len(str(num_episodes))
-    agent = DQNAgent(4, 2, alpha, gamma, epsilon_max,
-                          epsilon_min, epsilon_decay)
+    agent = DQNAgent(env.observation_space.shape, env.action_space.n, alpha, gamma, epsilon_max,
+                          epsilon_min, epsilon_decay, 1000)
     evaluation_returns = np.zeros(num_episodes // evaluate_every)
     returns = np.zeros(num_episodes)
+
+    #replace target-net with new q-net (every x episodes) ?
 
     for episode in range(num_episodes):
         returns[episode] = run_episode(env, agent, True, gamma)
