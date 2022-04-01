@@ -27,6 +27,8 @@ def run_episode(env: Env, agent: DQNAgent, training: bool, gamma) -> float:
         new_obs, reward, done, _ = env.step(action)
         if training:
             agent.learn(obs, action, reward, done, new_obs)
+        else:
+            env.render()
         obs = new_obs
         cum_reward += gamma ** t * reward
         t += 1
@@ -76,7 +78,7 @@ if __name__ == '__main__':
     env = gym.make('CartPole-v1')
     # test
 
-    num_samples = 10
+    num_samples = 3
     avg_evaluation = np.zeros((num_samples, (1000 // 50)))
 
     for x in range(num_samples):

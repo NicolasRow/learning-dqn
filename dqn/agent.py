@@ -90,7 +90,8 @@ class DQNAgent:
 
         # Compute the loss !
         q_value = self.nn(obs)[act] #self.q_table[obs, act]
-        next_max_q_value = torch.max(self.nn(next_obs)) #np.max(self.q_table[next_obs])
+        with torch.no_grad():
+            next_max_q_value = torch.max(self.nn(next_obs)) #np.max(self.q_table[next_obs])
 
         loss = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2).mean()
 
