@@ -103,13 +103,20 @@ class DQNAgent:
         #     observations = self.rb.sample(16)
 
         # Compute the loss !
-        q_values = self.nn(states)[actions] #self.q_table[obs, act]
-        print(q_values)
-        with torch.no_grad():
-            next_max_q_values = torch.max(self.nn(next_states)) #np.max(self.q_table[next_obs])
+        states_nn = self.nn(states) #Q_Values without action
+        next_states_nn = self.nn(next_states)
 
-        # loss = pow((rew + self.gamma * int(not done) * next_max_q_value - q_value), 2).mean()
-        loss = pow((rewards + self.gamma + (1-dones) * next_max_q_values - q_values), 2).mean()
+        q_values = torch.from_numpy(np.zeros(len(actions))) #Selected Q_Values by actions
+        x = 0
+        while x < len(actions):
+            q_values[x] = states_nn[x][actions[x]]
+            x += 1
+
+        with torch.no_grad():
+            next_max_q_values = torch.amax(next_states_nn, 1)
+
+        loss = pow((torch.from_numpy(rewards) + self.gamma + torch.from_numpy(1-dones) * next_max_q_values - q_values), 2)
+        loss = loss.mean()
 
         self.optimizer.zero_grad()
         loss.backward()
