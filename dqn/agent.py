@@ -6,6 +6,7 @@ from model import QModel
 from replay_buffer import ReplayBuffer
 import torch
 import random as rd
+import copy
 
 class DQNAgent:
     """

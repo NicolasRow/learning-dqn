@@ -2,6 +2,7 @@ from typing import Tuple, Optional
 import matplotlib.pyplot as plt
 import gym
 import numpy as np
+import copy
 from gym import Env
 from numpy import ndarray
 
@@ -35,7 +36,7 @@ def run_episode(env: Env, agent: DQNAgent, training: bool, gamma) -> float:
     return cum_reward
 
 
-def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_evaluation_episodes: int,
+def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_evaluation_episodes: int, update_target_network_every: int,
           graph_period: int, alpha: float, epsilon_max: Optional[float] = None, epsilon_min: Optional[float] = None,
           epsilon_decay: Optional[float] = None) -> Tuple[DQNAgent, ndarray, ndarray]:
     """
@@ -59,8 +60,6 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
     evaluation_returns = np.zeros(num_episodes // evaluate_every)
     returns = np.zeros(num_episodes)
 
-    #replace target-net with new q-net (every x episodes) ?
-
     for episode in range(num_episodes):
         returns[episode] = run_episode(env, agent, True, gamma)
 
@@ -70,9 +69,12 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
             for eval_episode in range(num_evaluation_episodes):
                 cum_rewards_eval[eval_episode] = run_episode(env, agent, False, gamma)
             evaluation_returns[evaluation_step] = np.mean(cum_rewards_eval)
-            agent.nn_target = agent.nn
             print(f"Episode {(episode + 1): >{digits}}/{num_episodes:0{digits}}:\t"
                   f"Averaged evaluation return {evaluation_returns[evaluation_step]:0.3}")
+
+        if (episode + 1) % update_target_network_every == 0:
+            #agent.nn_target = agent.nn.load_state_dict(agent.nn_target) #attribute "copy" needed in agent object, don't undestand the error
+            agent.nn_target = copy.deepcopy(agent.nn) #seems to work as it should
 
     return agent, returns, evaluation_returns
 
@@ -85,7 +87,7 @@ if __name__ == '__main__':
     avg_evaluation = np.zeros((num_samples, (1000 // 50)))
 
     for x in range(num_samples):
-        agent, returns, evaluation_returns = train(env, 0.99, 1000, 50, 32, 100, 0.01, 1.0, 0.05, 0.99)
+        agent, returns, evaluation_returns = train(env, 0.99, 1000, 50, 32, 10, 100, 0.01, 1.0, 0.05, 0.99)
         #plt.plot(evaluation_returns)
         avg_evaluation[x] = evaluation_returns
 
