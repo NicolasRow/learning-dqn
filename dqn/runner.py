@@ -70,6 +70,7 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
             for eval_episode in range(num_evaluation_episodes):
                 cum_rewards_eval[eval_episode] = run_episode(env, agent, False, gamma)
             evaluation_returns[evaluation_step] = np.mean(cum_rewards_eval)
+            agent.nn_target = agent.nn
             print(f"Episode {(episode + 1): >{digits}}/{num_episodes:0{digits}}:\t"
                   f"Averaged evaluation return {evaluation_returns[evaluation_step]:0.3}")
 

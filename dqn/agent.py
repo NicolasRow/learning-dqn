@@ -37,7 +37,7 @@ class DQNAgent:
         self.learning_rate = learning_rate
         self.gamma = gamma
         self.nn = QModel(self.obs_dim, num_actions)
-        #self.nn_target = self.nn_pred #?
+        self.nn_target = QModel(self.obs_dim, num_actions)
         self.rb = ReplayBuffer(capacity, self.obs_shape)
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
@@ -104,7 +104,11 @@ class DQNAgent:
 
         # Compute the loss !
         states_nn = self.nn(states) #Q_Values without action
-        next_states_nn = self.nn(next_states)
+        next_states_nn = self.nn_target(next_states)
+
+        # print("compare")
+        # print(self.nn(next_states))
+        # print(self.nn_target(next_states))
 
         q_values = torch.from_numpy(np.zeros(len(actions))) #Selected Q_Values by actions
         x = 0
