@@ -6,7 +6,6 @@ from model import QModel
 from replay_buffer import ReplayBuffer
 import torch
 import random as rd
-import copy
 
 class DQNAgent:
     """
@@ -97,7 +96,7 @@ class DQNAgent:
             else:
                 self.epsilon = self.epsilon * self.epsilon_decay
 
-        states, actions, rewards, dones, next_states = self.rb.sample(16)
+        states, actions, rewards, dones, next_states = self.rb.sample(32)
         # if len(self.rb) < 16:
         #     observations = self.rb.sample(16)
         # else:
@@ -107,11 +106,8 @@ class DQNAgent:
         states_nn = self.nn(states) #Q_Values without action
         next_states_nn = self.nn_target(next_states)
 
-        # print("compare")
-        # print(self.nn(next_states))
-        # print(self.nn_target(next_states))
-
         q_values = torch.from_numpy(np.zeros(len(actions))) #Selected Q_Values by actions
+
         x = 0
         while x < len(actions):
             q_values[x] = states_nn[x][actions[x]]
@@ -120,8 +116,10 @@ class DQNAgent:
         with torch.no_grad():
             next_max_q_values = torch.amax(next_states_nn, 1)
 
-        loss = pow((torch.from_numpy(rewards) + self.gamma + torch.from_numpy(1-dones) * next_max_q_values - q_values), 2)
-        loss = loss.mean()
+        # print(self.epsilon)
+        # print(q_values)
+
+        loss = pow(((torch.from_numpy(rewards) + self.gamma * torch.from_numpy(1-dones) * next_max_q_values) - q_values), 2).mean()
 
         self.optimizer.zero_grad()
         loss.backward()

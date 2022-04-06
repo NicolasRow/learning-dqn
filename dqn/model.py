@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class QModel(nn.Module):
@@ -13,6 +12,6 @@ class QModel(nn.Module):
         if not isinstance(state, torch.Tensor):
             state = torch.Tensor(state)
         x = self.f1(state)
-        x = F.tanh(x)
+        x = torch.tanh(x)
         x = self.f2(x)
         return x

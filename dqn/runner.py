@@ -28,8 +28,8 @@ def run_episode(env: Env, agent: DQNAgent, training: bool, gamma) -> float:
         new_obs, reward, done, _ = env.step(action)
         if training:
             agent.learn(obs, action, reward, done, new_obs)
-        else:
-            env.render()
+        #else:
+            #env.render()
         obs = new_obs
         cum_reward += gamma ** t * reward
         t += 1
@@ -70,7 +70,8 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
                 cum_rewards_eval[eval_episode] = run_episode(env, agent, False, gamma)
             evaluation_returns[evaluation_step] = np.mean(cum_rewards_eval)
             print(f"Episode {(episode + 1): >{digits}}/{num_episodes:0{digits}}:\t"
-                  f"Averaged evaluation return {evaluation_returns[evaluation_step]:0.3}")
+                  f"Averaged evaluation return {evaluation_returns[evaluation_step]:0.3}"
+                  f"  (epsilon value =  {agent.epsilon})")
 
         if (episode + 1) % update_target_network_every == 0:
             #agent.nn_target = agent.nn.load_state_dict(agent.nn_target) #attribute "copy" needed in agent object, don't undestand the error
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     env = gym.make('CartPole-v1')
     # test
 
-    num_samples = 3
+    num_samples = 5
     avg_evaluation = np.zeros((num_samples, (1000 // 50)))
 
     for x in range(num_samples):
