@@ -71,7 +71,7 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
             evaluation_returns[evaluation_step] = np.mean(cum_rewards_eval)
             print(f"Episode {(episode + 1): >{digits}}/{num_episodes:0{digits}}:\t"
                   f"Averaged evaluation return {evaluation_returns[evaluation_step]:0.3}"
-                  f"  (epsilon value =  {agent.epsilon})")
+                  f"  (epsilon =  {agent.epsilon})")
 
         if (episode + 1) % update_target_network_every == 0:
             #agent.nn_target = agent.nn.load_state_dict(agent.nn_target) #attribute "copy" needed in agent object, don't undestand the error
@@ -84,11 +84,12 @@ if __name__ == '__main__':
     env = gym.make('CartPole-v1')
     # test
 
-    num_samples = 5
+    num_samples = 10
     avg_evaluation = np.zeros((num_samples, (1000 // 50)))
 
     for x in range(num_samples):
-        agent, returns, evaluation_returns = train(env, 0.99, 1000, 50, 32, 10, 100, 0.01, 1.0, 0.05, 0.99)
+        print(f"Training session: {x}")
+        agent, returns, evaluation_returns = train(env, 0.99, 2000, 50, 32, 10, 100, 0.0005, 1.0, 0.000001, 0.99)
         #plt.plot(evaluation_returns)
         avg_evaluation[x] = evaluation_returns
 

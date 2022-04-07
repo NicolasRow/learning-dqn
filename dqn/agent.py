@@ -20,7 +20,7 @@ class DQNAgent:
                  epsilon_max: Optional[float] = None,
                  epsilon_min: Optional[float] = None,
                  epsilon_decay: Optional[float] = None,
-                 capacity: Optional[int] = 1000):
+                 capacity: Optional[int] = 5000):
         """
         :param num_states: Number of states.
         :param num_actions: Number of actions.
