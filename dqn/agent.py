@@ -20,7 +20,7 @@ class DQNAgent:
                  epsilon_max: Optional[float] = None,
                  epsilon_min: Optional[float] = None,
                  epsilon_decay: Optional[float] = None,
-                 capacity: Optional[int] = 5000):
+                 capacity: Optional[int] = 10000):
         """
         :param num_states: Number of states.
         :param num_actions: Number of actions.
@@ -96,7 +96,7 @@ class DQNAgent:
             else:
                 self.epsilon = self.epsilon * self.epsilon_decay
 
-        states, actions, rewards, dones, next_states = self.rb.sample(32)
+        states, actions, rewards, dones, next_states = self.rb.sample(64)
         # if len(self.rb) < 16:
         #     observations = self.rb.sample(16)
         # else:
@@ -104,7 +104,7 @@ class DQNAgent:
 
         # Compute the loss !
         states_nn = self.nn(states) #Q_Values without action
-        next_states_nn = self.nn_target(next_states)
+        next_pred_states_nn = self.nn(next_states)
 
         q_values = torch.from_numpy(np.zeros(len(actions))) #Selected Q_Values by actions
 
@@ -113,13 +113,19 @@ class DQNAgent:
             q_values[x] = states_nn[x][actions[x]]
             x += 1
 
+        new_actions = torch.argmax(next_pred_states_nn, 1)
+
         with torch.no_grad():
-            next_max_q_values = torch.amax(next_states_nn, 1)
+            next_target_states_nn = self.nn_target(next_states)
 
-        # print(self.epsilon)
-        # print(q_values)
+        target_q_values = torch.from_numpy(np.zeros(len(actions)))
 
-        loss = pow(((torch.from_numpy(rewards) + self.gamma * torch.from_numpy(1-dones) * next_max_q_values) - q_values), 2).mean()
+        y = 0
+        while y < len(actions):
+            target_q_values[y] = next_target_states_nn[y][new_actions[y]]
+            y += 1
+
+        loss = pow(((torch.from_numpy(rewards) + self.gamma * torch.from_numpy(1-dones) * target_q_values) - q_values), 2).mean()
 
         self.optimizer.zero_grad()
         loss.backward()

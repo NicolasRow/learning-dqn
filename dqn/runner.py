@@ -56,7 +56,7 @@ def train(env: Env, gamma: float, num_episodes: int, evaluate_every: int, num_ev
     """
     digits = len(str(num_episodes))
     agent = DQNAgent(env.observation_space.shape, env.action_space.n, alpha, gamma, epsilon_max,
-                          epsilon_min, epsilon_decay, 1000)
+                          epsilon_min, epsilon_decay)
     evaluation_returns = np.zeros(num_episodes // evaluate_every)
     returns = np.zeros(num_episodes)
 
@@ -84,17 +84,20 @@ if __name__ == '__main__':
     env = gym.make('CartPole-v1')
     # test
 
-    num_samples = 10
-    avg_evaluation = np.zeros((num_samples, (1000 // 50)))
+    num_episodes = 1000
+    num_samples = 3
+    avg_evaluation = np.zeros((num_samples, (num_episodes // 50)))
 
     for x in range(num_samples):
         print(f"Training session: {x}")
-        agent, returns, evaluation_returns = train(env, 0.99, 2000, 50, 32, 10, 100, 0.0005, 1.0, 0.000001, 0.99)
+        agent, returns, evaluation_returns = train(env, 0.99, num_episodes, 50, 32, 10, 100, 0.001, 1.0, 0.05, 0.99)
         #plt.plot(evaluation_returns)
         avg_evaluation[x] = evaluation_returns
 
-    avg_evaluation_mean = np.mean(avg_evaluation, axis=0)
-    plt.plot(avg_evaluation_mean, color='r')
+    avg_evaluation_means = np.mean(avg_evaluation, axis=0)
+    avg_evaluation_stds = np.std(avg_evaluation, axis=0)
+    plt.plot(avg_evaluation_means, color='r')
+    plt.fill_between(range(num_episodes // 50), avg_evaluation_means - avg_evaluation_stds, avg_evaluation_means + avg_evaluation_stds, alpha=.1, color='r')
     plt.ylabel(f"evaluation")
     #plt.xlabel(f"episodes x{graph_period}")
     plt.show()
